@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Upload } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
-
+import Sorry from './Sorry';
 interface AssignmentForm {
   title: string;
   subject: string;
@@ -18,7 +18,11 @@ function CreateAssignment() {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<AssignmentForm>();
   const [file, setFile] = React.useState<File | null>(null);
-
+  const [userRole, setUserRole] = useState(null);
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+    setUserRole(role);
+  }, []);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'application/pdf': ['.pdf'],
@@ -63,6 +67,9 @@ function CreateAssignment() {
       toast.error('Failed to create assignment');
     }
   };
+  if (userRole === 'student') {
+    return <Sorry />;
+  }
 
   return (
     <div className="max-w-3xl mx-auto">

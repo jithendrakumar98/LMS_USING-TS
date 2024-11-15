@@ -72,7 +72,7 @@ export default function Wait() {
       </div>
       <h2 style={messageStyle}>Sorry for the inconvenience</h2>
       <p style={paragraphStyle}>
-        It is in the build stage, we will get back to you soon.
+        You are not authorized  to Work on this Page or We are Still Working On it.
       </p>
 
       {/* Inline keyframes for hammer animation */}

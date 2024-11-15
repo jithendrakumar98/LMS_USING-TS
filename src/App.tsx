@@ -12,6 +12,7 @@ import AddSubmission from './pages/AddSubmission';
 import CodingIDE from './pages/CodingIDE';
 const queryClient = new QueryClient();
 import Sorry from './pages/Sorry';
+import AddStudent from './pages/AddStudent';
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
@@ -36,7 +37,7 @@ function App() {
             <Route path="create-assignment" element={<CreateAssignment />} />
             <Route path="add-submission" element={<AddSubmission />} />
             <Route path="view-submissions" element={<Sorry />} />
-            <Route path="add-student" element={<Sorry />} />
+            <Route path="add-student" element={<AddStudent />} />
             <Route path="ide" element={<CodingIDE />} />
           </Route>
         </Routes>
