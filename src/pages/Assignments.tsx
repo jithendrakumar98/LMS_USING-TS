@@ -19,30 +19,37 @@ function Assignments() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPdfUrl, setSelectedPdfUrl] = useState(null);
 
+  // Use environment variable for BASE_URL
+  const BASE_URL = 'http://localhost:8081';
+
   // Fetch assignments from API
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/pdf/files');
-        setAssignments(response.data);
+        const response = await axios.get(`${BASE_URL}/api/pdf/files`);
+        // Sort assignments by ID in descending order (latest first)
+        const sortedAssignments = response.data.sort((a, b) => b.id - a.id);
+        setAssignments(sortedAssignments);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching assignments:', err.response || err.message);
         setError('Failed to fetch assignments');
         setLoading(false);
       }
     };
 
     fetchAssignments();
-  }, []);
+  }, [BASE_URL]);
 
   const handleDelete = async (assignmentId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this assignment?');
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:8080/api/pdf/delete/${assignmentId}`);
+        await axios.delete(`${BASE_URL}/api/pdf/delete/${assignmentId}`);
         setAssignments(assignments.filter((assignment) => assignment.id !== assignmentId));
         toast.success('Assignment deleted successfully');
       } catch (err) {
+        console.error('Error deleting assignment:', err.response || err.message);
         setError('Failed to delete assignment');
         toast.error('Failed to delete assignment');
       }
@@ -133,7 +140,7 @@ function Assignments() {
                   {assignment.subject}
                 </span>
                 <button
-                  onClick={() => handleViewPdf(`http://localhost:8080/api/pdf/view/${assignment.id}`)}
+                  onClick={() => handleViewPdf(`${BASE_URL}/api/pdf/view/${assignment.id}`)}
                   className="text-blue-600 hover:text-blue-800"
                 >
                   <Eye className="h-5 w-5" />

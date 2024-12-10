@@ -8,9 +8,11 @@ import Dashboard from './pages/Dashboard';
 import Assignments from './pages/Assignments';
 import CreateAssignment from './pages/CreateAssignment';
 import { useAuthStore } from './store/authStore';
+import Map from './pages/Maps'
 import AddSubmission from './pages/AddSubmission';
 import CodingIDE from './pages/CodingIDE';
 const queryClient = new QueryClient();
+import ViewSubmission from './pages/ViewSubmission';
 import Sorry from './pages/Sorry';
 import AddStudent from './pages/AddStudent';
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -36,9 +38,10 @@ function App() {
             <Route path="assignments" element={<Assignments />} />
             <Route path="create-assignment" element={<CreateAssignment />} />
             <Route path="add-submission" element={<AddSubmission />} />
-            <Route path="view-submissions" element={<Sorry />} />
+            <Route path="view-submissions" element={<ViewSubmission />} />
             <Route path="add-student" element={<AddStudent />} />
             <Route path="ide" element={<CodingIDE />} />
+            <Route path="Map" element={<Map />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -26,11 +26,12 @@ function StatCard({ icon: Icon, label, value, color }: {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [totalStudents, setTotalStudents] = useState(0); 
-  const [isLoading, setIsLoading] = useState(true); 
-
+  const [totalStudents, setTotalStudents] = useState<number | null>(null); 
+  const [isLoading, setIsLoading] = useState(true);
+  const [teacherName, setTeacherName] = useState('');
+  const [subject, setSubject] = useState('');
+  
   useEffect(() => {
-    
     const checkAuthAndFetchData = async () => {
       const isAuthenticated = localStorage.getItem('isAuthenticated');
       
@@ -39,34 +40,47 @@ function Dashboard() {
         return;
       }
 
-      try {
-        const response = await axios.get('http://localhost:8080/users/count');
-        setTotalStudents(response.data);
-      } catch (error) {
-        console.error('Error fetching total students:', error);
-        if (error.response?.status === 401) {
-          localStorage.removeItem('isAuthenticated');
-          localStorage.removeItem('username');
-          localStorage.removeItem('userRole');
-          navigate('/login');
-        }
-      } finally {
-        setIsLoading(false);
+      const role = localStorage.getItem('userRole');
+      if(role==='student'){
+        const response1 = await axios.get('https://edutrackspring.up.railway.app/users/count');
+        setTotalStudents(response1.data);
       }
+      
+      if (role === 'teacher') {
+        // Fetch teacher data
+        try {
+          const username = localStorage.getItem("username");
+          const response = await axios.get(`https://edutrackspring.up.railway.app/teachers/${username}`);
+          const { name, subject } = response.data;
+          setTeacherName(name);
+          setSubject(subject);
+          const response1 = await axios.get('https://edutrackspring.up.railway.app/users/count');
+          setTotalStudents(response1.data);  
+          localStorage.setItem('Subject', subject); 
+        } catch (error) {
+          console.error('Error fetching teacher data:', error);
+          if (error.response?.status === 401) {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('Subject');
+            navigate('/login');
+          }
+        }
+      } 
+      setIsLoading(false);
     };
 
     const checkAndReload = () => {
       const hasReloaded = localStorage.getItem('hasReloaded');
-
       if (!hasReloaded) {
         localStorage.setItem('hasReloaded', 'true');
-        window.location.reload(); // Reload the page
+        window.location.reload(); // Reload once
       }
     };
 
     checkAuthAndFetchData();
     checkAndReload(); // Reload once
-
   }, [navigate]);
 
   const username = localStorage.getItem('username') || '';
@@ -75,7 +89,8 @@ function Dashboard() {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {username}!
+          {/* Display teacher name instead of username */}
+          Welcome back, {teacherName || username}!
         </h1>
         <p className="mt-1 text-gray-500">
           Here's what's happening in your classroom
@@ -92,7 +107,7 @@ function Dashboard() {
         <StatCard
           icon={Users}
           label="Total Students"
-          value={isLoading ? 'Loading...' : totalStudents}
+          value={isLoading ? 'Loading...' : totalStudents !== null ? totalStudents : 'Error'}
           color="text-green-600"
         />
         <StatCard
@@ -108,6 +123,15 @@ function Dashboard() {
           color="text-purple-600"
         />
       </div>
+
+      {teacherName && subject && (
+        <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900">Teacher Info</h2>
+          <p className="mt-4 text-gray-600">Emp Id: {username}</p>
+          <p className="mt-4 text-gray-600">Name: {teacherName}</p>
+          <p className="mt-2 text-gray-600">Subject: {subject}</p>
+        </div>
+      )}
 
       <div className="mt-8 bg-white rounded-lg shadow">
         <div className="p-6">

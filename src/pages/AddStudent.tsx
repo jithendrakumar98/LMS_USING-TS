@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import Sorry from './Sorry';  // Assuming Sorry.tsx is in the same folder
+import Sorry from './Sorry';  
 
 function AddStudent() {
   const [userID, setUserID] = useState('');
@@ -13,9 +13,8 @@ function AddStudent() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
-    
+ 
   useEffect(() => {
-    // Fetch the user role from localStorage
     const role = localStorage.getItem('userRole');
     setUserRole(role);
   }, []);
@@ -34,6 +33,7 @@ function AddStudent() {
       toast.error('Please fill out all fields');
       return;
     }
+    
 
     setLoading(true);
 
@@ -49,12 +49,13 @@ function AddStudent() {
     }
 
     try {
-      await axios.post('http://localhost:8080/users/post', formData, {
+      await axios.post('https://edutrackspring.up.railway.app/users/post', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       // Reset form fields
+      
       setEmail('');
       setName('');
       setImage(null);

@@ -25,8 +25,8 @@ function AddSubmission() {
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/pdf/files');
-        const sortedAssignments = response.data.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+        const response = await axios.get('https://edutrackspring.up.railway.app/api/pdf/files');
+        const sortedAssignments = response.data.sort((a, b) => new Date(b.id) - new Date(a.id));
         setAssignments(sortedAssignments);
         setLoading(false);
       } catch (err) {
@@ -39,7 +39,7 @@ function AddSubmission() {
       const storedUsername = localStorage.getItem('username');
       if (storedUsername) {
         try {
-          const response = await axios.get(`http://localhost:8080/users/getbyid`, {
+          const response = await axios.get(`https://edutrackspring.up.railway.app/users/getbyid`, {
             params: { id: storedUsername },
           });
           setUserName(response.data.name);
@@ -51,7 +51,7 @@ function AddSubmission() {
 
     const fetchSubmissions = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/submission/files');
+        const response = await axios.get('https://edutrackspring.up.railway.app/api/submission/files');
         setSubmissions(response.data); // Store all submissions
       } catch (error) {
         console.error('Error fetching submissions:', error);
@@ -89,7 +89,7 @@ function AddSubmission() {
 
     try {
       setIsSubmitting(true);
-      await axios.post(`http://localhost:8080/api/submission/upload`, formData);
+      await axios.post(`https://edutrackspring.up.railway.app/api/submission/upload`, formData);
       toast.success('Submission successful!');
       setIsSubmitting(false);
       setSubmissionFile(null); // Clear the file after submission
@@ -104,7 +104,7 @@ function AddSubmission() {
   const handleDelete = async (assignmentId) => {
     if (window.confirm('Are you sure you want to delete this submission?')) {
       try {
-        await axios.delete(`http://localhost:8080/api/assignments/${assignmentId}/delete`);
+        await axios.delete(`https://edutrackspring.up.railway.app/api/assignments/${assignmentId}/delete`);
         toast.success('Submission deleted successfully!');
         setAssignments(assignments.filter(assignment => assignment.id !== assignmentId));
       } catch (error) {
@@ -281,7 +281,7 @@ function AddSubmission() {
       </div>
       <div className="mt-4 h-full">
         <iframe
-          src={`http://localhost:8080/api/submission/view/${selectedSubmission.id}`}
+          src={`https://edutrackspring.up.railway.app/api/submission/view/${selectedSubmission.id}`}
           width="100%"
           height="100%"
           title="PDF Viewer"

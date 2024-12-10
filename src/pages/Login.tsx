@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { GraduationCap } from 'lucide-react';
@@ -8,22 +8,34 @@ import axios from 'axios';
 interface LoginForm {
   username: string;
   password: string;
+  captchaAnswer: string;
 }
 
 function Login() {
   const navigate = useNavigate();
   const { register, handleSubmit, watch } = useForm<LoginForm>();
+  const [captcha, setCaptcha] = useState(generateCaptcha());
   const username = watch('username');
+
+  // Generate a simple addition or subtraction captcha
+  function generateCaptcha() {
+    const num1 = Math.floor(Math.random() * 10);
+    const num2 = Math.floor(Math.random() * 10);
+    const operator = Math.random() > 0.5 ? '+' : '-';
+    const result = operator === '+' ? num1 + num2 : num1 - num2;
+
+    return { question: `${num1} ${operator} ${num2}`, answer: result.toString() };
+  }
 
   const validateLogin = async (userId: string, password: string) => {
     const isTeacher = userId.length === 4;
     const endpoint = isTeacher ? '/teachers/login' : '/users/login';
-    const payload = isTeacher 
+    const payload = isTeacher
       ? { teacherId: parseInt(userId), password }
       : { userID: userId, password };
 
     try {
-      const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
+      const response = await axios.post(`https://edutrackspring.up.railway.app${endpoint}`, payload);
       return response.data;
     } catch (error) {
       return false;
@@ -31,17 +43,23 @@ function Login() {
   };
 
   const onSubmit = async (data: LoginForm) => {
+    if (data.captchaAnswer !== captcha.answer) {
+      toast.error('Captcha is incorrect. Please try again.');
+      setCaptcha(generateCaptcha()); // Regenerate captcha on failure
+      return;
+    }
+
     localStorage.clear();
     try {
       const isAuthenticated = await validateLogin(data.username, data.password);
-      
+
       if (isAuthenticated) {
         const userRole = data.username.length === 4 ? 'teacher' : 'student';
-        
+
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('username', data.username);
         localStorage.setItem('userRole', userRole);
-        
+
         navigate('/');
       } else {
         toast.error('Invalid credentials');
@@ -66,10 +84,7 @@ function Login() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
               </label>
               <div className="mt-1">
@@ -83,16 +98,27 @@ function Login() {
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <div className="mt-1">
                 <input
                   {...register('password')}
                   type="password"
+                  required
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="captcha" className="block text-sm font-medium text-gray-700">
+                What is {captcha.question}?
+              </label>
+              <div className="mt-1">
+                <input
+                  {...register('captchaAnswer')}
+                  type="text"
                   required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
